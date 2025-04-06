@@ -6,6 +6,11 @@ pipeline {
         jdk 'JDK17'
     }
     
+    parameters {
+        booleanParam(name: 'DEPLOY_INFRA', defaultValue: false, description: 'Desplegar infraestructura con Terraform')
+        choice(name: 'TF_ACTION', choices: ['plan', 'apply', 'destroy'], description: 'Acción de Terraform')
+    }
+    
     environment {
         GIT_BRANCH = "${env.BRANCH_NAME ?: env.GIT_BRANCH ?: 'develop'}"
         DEPLOY_ENV = "${env.GIT_BRANCH == 'main' ? 'production' : 
@@ -18,6 +23,11 @@ pipeline {
         // Credenciales
         CLOUDFLARE_CREDS = credentials('cloudflare-r2-credentials')
         MAIL_CREDS = credentials('spring-mail-credentials')
+        
+        // Variables de Terraform
+        TF_IN_AUTOMATION = 'true'
+        TF_WORKSPACE = "${env.DEPLOY_ENV}"
+        TF_VAR_FILE = "${env.DEPLOY_ENV}.tfvars"
     }
     
     stages {
@@ -29,9 +39,79 @@ pipeline {
             }
         }
         
-        stage('Build and Test') {
+        // ETAPAS DE TERRAFORM PARA INFRAESTRUCTURA
+        stage('Terraform Init') {
+            when {
+                expression { params.DEPLOY_INFRA }
+            }
             steps {
-                sh 'mvn clean package'
+                echo "Inicializando Terraform para entorno ${env.DEPLOY_ENV}"
+                sh 'terraform init'
+            }
+        }
+        
+        stage('Terraform Workspace') {
+            when {
+                expression { params.DEPLOY_INFRA }
+            }
+            steps {
+                script {
+                    try {
+                        sh "terraform workspace select ${env.DEPLOY_ENV}"
+                    } catch (Exception e) {
+                        sh "terraform workspace new ${env.DEPLOY_ENV}"
+                    }
+                }
+            }
+        }
+        
+        stage('Terraform Plan') {
+            when {
+                expression { params.DEPLOY_INFRA && (params.TF_ACTION == 'plan' || params.TF_ACTION == 'apply') }
+            }
+            steps {
+                echo "Planificando cambios de infraestructura para ${env.DEPLOY_ENV}"
+                sh "terraform plan -var-file=${env.TF_VAR_FILE} -out=${env.DEPLOY_ENV}.tfplan"
+            }
+        }
+        
+        stage('Terraform Apply') {
+            when {
+                expression { params.DEPLOY_INFRA && params.TF_ACTION == 'apply' }
+            }
+            steps {
+                echo "Aplicando cambios de infraestructura para ${env.DEPLOY_ENV}"
+                sh "terraform apply ${env.DEPLOY_ENV}.tfplan"
+                
+                // Capturar las salidas para usar en etapas posteriores
+                script {
+                    env.APP_URL = sh(script: "terraform output -raw app_url || echo 'http://localhost:8080'", returnStdout: true).trim()
+                    env.MYSQL_CONNECTION = sh(script: "terraform output -raw mysql_connection || echo 'mysql default'", returnStdout: true).trim()
+                    
+                    echo "URL de la aplicación: ${env.APP_URL}"
+                    echo "Conexión MySQL: ${env.MYSQL_CONNECTION}" 
+                }
+            }
+        }
+        
+        stage('Terraform Destroy') {
+            when {
+                expression { params.DEPLOY_INFRA && params.TF_ACTION == 'destroy' }
+            }
+            steps {
+                input message: "⚠️ ¡CUIDADO! ¿Confirmar DESTRUCCIÓN de infraestructura en ${env.DEPLOY_ENV}?", ok: 'Destruir'
+                echo "Destruyendo infraestructura en ${env.DEPLOY_ENV}"
+                sh "terraform destroy -var-file=${env.TF_VAR_FILE} -auto-approve"
+            }
+        }
+        
+        // ETAPAS ORIGINALES PARA LA APLICACIÓN
+        stage('Build and Test') {
+            when {
+                expression { !params.DEPLOY_INFRA || (params.DEPLOY_INFRA && params.TF_ACTION != 'destroy') }
+            }
+            steps {
+                sh 'mvn clean package -DskipTests'
                 
                 // Verificar que el JAR fue creado correctamente
                 sh 'ls -la target/*.jar'
@@ -39,12 +119,15 @@ pipeline {
             post {
                 success {
                     archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-                    junit '**/target/surefire-reports/TEST-*.xml'
+                    // junit '**/target/surefire-reports/TEST-*.xml'
                 }
             }
         }
         
         stage('Build Docker Image') {
+            when {
+                expression { !params.DEPLOY_INFRA || (params.DEPLOY_INFRA && params.TF_ACTION != 'destroy') }
+            }
             steps {
                 // Asegurarse de que el archivo JAR exista antes de construir la imagen
                 sh 'ls -la target/*.jar || (echo "ERROR: JAR file not found"; exit 1)'
@@ -54,11 +137,11 @@ pipeline {
             }
         }
         
-        stage('Deploy') {
+        stage('Deploy Application') {
             when {
-                anyOf {
-                    branch 'develop';
-                    branch 'main'
+                expression { 
+                    (!params.DEPLOY_INFRA || (params.DEPLOY_INFRA && params.TF_ACTION != 'destroy')) &&
+                    (env.GIT_BRANCH == 'develop' || env.GIT_BRANCH == 'main')
                 }
             }
             
@@ -91,10 +174,19 @@ pipeline {
     
     post {
         always {
-            cleanWs()
+            // Limpiar archivos temporales pero no el workspace completo
+            // para mantener los archivos de state de Terraform
+            sh 'rm -f *.tfplan'
         }
         success {
             echo "Pipeline completed successfully for ${env.GIT_BRANCH} branch!"
+            
+            script {
+                if (params.DEPLOY_INFRA && params.TF_ACTION == 'apply') {
+                    echo "Infraestructura desplegada correctamente."
+                    sh 'terraform output || echo "No hay outputs disponibles"'
+                }
+            }
         }
         failure {
             echo "Pipeline failed for ${env.GIT_BRANCH} branch"

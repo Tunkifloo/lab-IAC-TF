@@ -22,8 +22,7 @@ jenkins_agent_port = {
   prod    = 50003
 }
 
-# Estos valores deben ser sustituidos por los reales en producción
-# En un entorno real, se recomienda usar variables de entorno o un sistema de gestión de secretos
+# Configuración para desarrollo
 cloudflare_r2_access_key = "9a56301f3237ee78b448c9d7e664b143"
 cloudflare_r2_secret_key = "8e3b676e2adf2b0b258647d2a897653e2e65574688ab482ca62d7b803fcdb432"
 cloudflare_r2_endpoint   = "https://35a65665075e7977418ec554566af539.r2.cloudflarestorage.com"
