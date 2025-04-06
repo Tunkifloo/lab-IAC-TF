@@ -5,7 +5,7 @@ app_port = {
 }
 
 mysql_port = {
-  dev     = 3307
+  dev     = 3309
   staging = 3308
   prod    = 3306
 }
