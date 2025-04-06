@@ -1,5 +1,12 @@
 # MTD API
 
+## Collaborators:
+- Cisneros Bartra, Adrian Nicolás
+- Marin Yupanqui, Bryan Arturo
+- Márquez Diestra, Hugo Elias
+- Mostacerdo Cieza, Luis Gayvid
+- Lescano Saavedra, Anthony
+
 ## Installation
 
 1. Clone the repository:
