@@ -8,7 +8,8 @@ pipeline {
     
     environment {
         JAVA_HOME = '/opt/jdk/jdk-17.0.14+7'
-        PATH = "${JAVA_HOME}/bin:${env.PATH}"
+        M2_HOME = '/opt/maven/apache-maven-3.9.6'
+        PATH = "${JAVA_HOME}/bin:${M2_HOME}/bin:${env.PATH}"
 
         APP_NAME = 'mtd-api'
         
@@ -120,11 +121,9 @@ pipeline {
 
                 sh '''
                 echo "JAVA_HOME is: $JAVA_HOME"
-                which java
-                java -version
+                echo "Maven path: $(which mvn)"
 
-                echo "Usando Maven desde /usr/bin/mvn..."
-                which mvn
+                java -version
                 mvn -version
 
                 mvn clean package -DskipTests
