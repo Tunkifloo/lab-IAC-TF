@@ -129,8 +129,9 @@ pipeline {
                 echo "JAVA_HOME is: $JAVA_HOME"
                 which java
                 java -version
-                mvn -version
-                mvn clean package -DskipTests
+                echo "Maven path: $(which mvn)"
+                echo "Launching Maven with correct JAVA_HOME..."
+                JAVA_HOME=$JAVA_HOME mvn clean package -DskipTests
                 '''
 
 
