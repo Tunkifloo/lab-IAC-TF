@@ -1,9 +1,6 @@
 pipeline {
     agent any
     
-    tools {
-    }
-    
     parameters {
         booleanParam(name: 'DEPLOY_INFRA', defaultValue: false, description: 'Desplegar infraestructura con Terraform')
         choice(name: 'TF_ACTION', choices: ['plan', 'apply', 'destroy'], description: 'Acción de Terraform')
