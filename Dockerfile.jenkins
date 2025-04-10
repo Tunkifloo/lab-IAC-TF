@@ -2,25 +2,21 @@ FROM jenkins/jenkins:lts
 
 USER root
 
-# Instalar Docker CLI
+# Instalar Docker y herramientas necesarias
 RUN apt-get update && \
-    apt-get install -y docker.io curl unzip && \
+    apt-get install -y docker.io curl unzip gnupg software-properties-common lsb-release maven && \
     apt-get clean
-
-# Instalar Maven
-RUN apt-get update && \
-    apt-get install -y maven && \
-    apt-get clean
-
-# Instalar Terraform
-RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg && \
-    echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" > /etc/apt/sources.list.d/hashicorp.list && \
-    apt-get update && \
-    apt-get install -y terraform
 
 # Instalar docker-compose
 RUN curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" \
     -o /usr/local/bin/docker-compose && \
     chmod +x /usr/local/bin/docker-compose
+
+# Instalar Terraform
+RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" > /etc/apt/sources.list.d/hashicorp.list && \
+    apt-get update && \
+    apt-get install -y terraform && \
+    apt-get clean
 
 USER jenkins
