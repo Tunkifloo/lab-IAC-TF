@@ -122,7 +122,13 @@ pipeline {
             steps {
                 withEnv(["JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64", "PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:${env.PATH}"]) {
                 sh 'java -version' // Verificación
-                sh 'mvn clean package -DskipTests'
+
+                sh '''
+                export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+                export PATH=$JAVA_HOME/bin:$PATH
+                mvn clean package -DskipTests
+                '''
+
                 sh 'ls -la target/*.jar'
             }
         }
