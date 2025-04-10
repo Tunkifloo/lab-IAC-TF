@@ -76,6 +76,7 @@ pipeline {
             }
             steps {
                 echo "Planificando cambios de infraestructura para ${env.DEPLOY_ENV}"
+                sh "terraform state rm docker_volume.jenkins_home docker_volume.db_data || true"
                 sh "terraform plan -var-file=${env.TF_VAR_FILE} -out=${env.DEPLOY_ENV}.tfplan"
             }
         }
