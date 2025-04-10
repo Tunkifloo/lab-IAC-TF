@@ -24,16 +24,12 @@ pipeline {
             steps {
                 script {
                     env.GIT_BRANCH = (env.BRANCH_NAME ?: env.GIT_BRANCH ?: 'develop').replace('origin/', '')
-                    env.DEPLOY_ENV = (env.GIT_BRANCH == 'main') ? 'production' :
-                                    (env.GIT_BRANCH == 'develop') ? 'staging' : 'testing'
-                    
-                    def tfvarsFile = "${env.DEPLOY_ENV}.tfvars"
-                    env.TF_VAR_FILE = fileExists(tfvarsFile) ? tfvarsFile : "dev.tfvars"
+                    env.DEPLOY_ENV = 'dev'
 
-                    env.VERSION = getVersionFromBranch(env.GIT_BRANCH)
-                    env.DOCKER_IMAGE_TAG = "${env.APP_NAME}:${env.VERSION}-${env.BUILD_NUMBER}"
-                
+                    env.TF_VAR_FILE = "${env.DEPLOY_ENV}.tfvars"
+
                     echo "TF_VAR_FILE elegido: ${env.TF_VAR_FILE}"
+                    echo "Forzando terraform.workspace = ${env.DEPLOY_ENV}"
                 }
             }
         }
@@ -66,7 +62,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh "terraform workspace select ${env.DEPLOY_ENV}"
+                        sh "terraform workspace select ${env.DEPLOY_ENV} || terraform workspace new ${env.DEPLOY_ENV}"
                     } catch (Exception e) {
                         sh "terraform workspace new ${env.DEPLOY_ENV}"
                     }
