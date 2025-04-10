@@ -116,12 +116,9 @@ pipeline {
                 expression { !params.DEPLOY_INFRA || (params.DEPLOY_INFRA && params.TF_ACTION != 'destroy') }
                 }
             steps {
-                withEnv(["JAVA_HOME=/opt/jdk/jdk-17.0.14+7", "PATH=/opt/jdk/jdk-17.0.14+7/bin:${env.PATH}"]) {
-                sh 'java -version'
-
                 sh """
-                export JAVA_HOME=${env.JAVA_HOME}
-                export M2_HOME=${env.M2_HOME}
+                export JAVA_HOME=/opt/jdk/jdk-17.0.14+7
+                export M2_HOME=/opt/maven
                 export PATH=\$JAVA_HOME/bin:\$M2_HOME/bin:\$PATH
 
                 echo "JAVA_HOME is: \$JAVA_HOME"
