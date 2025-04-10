@@ -23,7 +23,7 @@ pipeline {
         stage('Set Environment') {
             steps {
                 script {
-                    env.GIT_BRANCH = env.BRANCH_NAME ?: env.GIT_BRANCH ?: 'develop'
+                    env.GIT_BRANCH = (env.BRANCH_NAME ?: env.GIT_BRANCH ?: 'develop').replace('origin/', '')
                     env.DEPLOY_ENV = (env.GIT_BRANCH == 'main') ? 'production' :
                                     (env.GIT_BRANCH == 'develop') ? 'staging' : 'testing'
                     env.TF_WORKSPACE = env.DEPLOY_ENV
