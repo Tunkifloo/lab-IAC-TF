@@ -126,8 +126,11 @@ pipeline {
                 which java
                 java -version
 
-                echo "Usando Maven instalado manualmente..."
-                /usr/share/maven/bin/mvn clean package -DskipTests
+                echo "Usando Maven disponible en el sistema..."
+                which mvn
+                mvn -version
+
+                mvn clean package -DskipTests
                 '''
 
 
