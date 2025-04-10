@@ -12,6 +12,9 @@ pipeline {
     }
     
     environment {
+    JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'
+    PATH = "${JAVA_HOME}/bin:${env.PATH}"
+    
     APP_NAME = 'mtd-api'
     
     CLOUDFLARE_CREDS = credentials('cloudflare-r2-credentials')
