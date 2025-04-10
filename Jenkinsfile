@@ -14,7 +14,7 @@ pipeline {
     environment {
     JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'
     PATH = "${JAVA_HOME}/bin:${env.PATH}"
-    
+
     APP_NAME = 'mtd-api'
     
     CLOUDFLARE_CREDS = credentials('cloudflare-r2-credentials')
@@ -118,20 +118,21 @@ pipeline {
         stage('Build and Test') {
             when {
                 expression { !params.DEPLOY_INFRA || (params.DEPLOY_INFRA && params.TF_ACTION != 'destroy') }
-            }
+                }
             steps {
+                withEnv(["JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64", "PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:${env.PATH}"]) {
+                sh 'java -version' // Verificación
                 sh 'mvn clean package -DskipTests'
-                
-                // Verificar que el JAR fue creado correctamente
                 sh 'ls -la target/*.jar'
             }
-            post {
-                success {
-                    archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-                    // junit '**/target/surefire-reports/TEST-*.xml'
-                }
+        }
+        post {
+            success {
+                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
             }
         }
+}
+
         
         stage('Build Docker Image') {
             when {
