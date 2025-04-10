@@ -8,7 +8,7 @@ pipeline {
     
     environment {
         JAVA_HOME = '/opt/jdk/jdk-17.0.14+7'
-        M2_HOME = '/opt/maven/apache-maven-3.9.6'
+        M2_HOME = '/opt/maven'
         PATH = "${JAVA_HOME}/bin:${M2_HOME}/bin:${env.PATH}"
 
         APP_NAME = 'mtd-api'
