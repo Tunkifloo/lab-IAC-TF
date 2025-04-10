@@ -116,17 +116,14 @@ pipeline {
                 }
             steps {
                 withEnv(["JAVA_HOME=/opt/jdk/jdk-17.0.14+7", "PATH=/opt/jdk/jdk-17.0.14+7/bin:${env.PATH}"]) {
-                sh 'java -version' // Verificación
+                sh 'java -version'
 
                 sh '''
-                export JAVA_HOME=/opt/jdk/jdk-17.0.14+7
-                export PATH=$JAVA_HOME/bin:$PATH
-
                 echo "JAVA_HOME is: $JAVA_HOME"
                 which java
                 java -version
 
-                echo "Usando Maven disponible en el sistema..."
+                echo "Usando Maven desde /usr/bin/mvn..."
                 which mvn
                 mvn -version
 
