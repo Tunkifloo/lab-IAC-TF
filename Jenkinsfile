@@ -126,8 +126,13 @@ pipeline {
                 sh '''
                 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
                 export PATH=$JAVA_HOME/bin:$PATH
+                echo "JAVA_HOME is: $JAVA_HOME"
+                which java
+                java -version
+                mvn -version
                 mvn clean package -DskipTests
                 '''
+
 
                 sh 'ls -la target/*.jar'
             }
