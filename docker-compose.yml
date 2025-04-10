@@ -7,8 +7,8 @@ services:
     privileged: true
     user: root
     ports:
-      - "0:8080"
-      - "0:50000"
+      - "9090:8080"    # Jenkins será accesible en http://localhost:9090
+      - "50000:50000"    # Puerto para agentes remotos (usado por pipelines distribuidos)
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
@@ -20,7 +20,7 @@ services:
   app_mtd:
     build: .
     ports:
-      - "0:8080"
+      - "8081:8080"      # App disponible en http://localhost:8081
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mtd_db:3306/mtd?createDatabaseIfNotExist=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: root

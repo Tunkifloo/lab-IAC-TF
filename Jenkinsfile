@@ -12,25 +12,31 @@ pipeline {
     }
     
     environment {
-        GIT_BRANCH = "${env.BRANCH_NAME ?: env.GIT_BRANCH ?: 'develop'}"
-        DEPLOY_ENV = "${env.GIT_BRANCH == 'main' ? 'production' : 
-                       env.GIT_BRANCH == 'develop' ? 'staging' : 'testing'}"
-        
-        APP_NAME = 'mtd-api'
-        VERSION = getVersionFromBranch("${env.GIT_BRANCH}")
-        DOCKER_IMAGE_TAG = "${APP_NAME}:${VERSION}-${BUILD_NUMBER}"
-        
-        // Credenciales
-        CLOUDFLARE_CREDS = credentials('cloudflare-r2-credentials')
-        MAIL_CREDS = credentials('spring-mail-credentials')
-        
-        // Variables de Terraform
-        TF_IN_AUTOMATION = 'true'
-        TF_WORKSPACE = "${env.DEPLOY_ENV}"
-        TF_VAR_FILE = "${env.DEPLOY_ENV}.tfvars"
+    APP_NAME = 'mtd-api'
+    
+    CLOUDFLARE_CREDS = credentials('cloudflare-r2-credentials')
+    MAIL_CREDS = credentials('spring-mail-credentials')
+    
+    TF_IN_AUTOMATION = 'true'
     }
     
     stages {
+        stage('Set Environment') {
+            steps {
+                script {
+                    env.GIT_BRANCH = env.BRANCH_NAME ?: env.GIT_BRANCH ?: 'develop'
+                    env.DEPLOY_ENV = (env.GIT_BRANCH == 'main') ? 'production' :
+                                    (env.GIT_BRANCH == 'develop') ? 'staging' : 'testing'
+                    env.TF_WORKSPACE = env.DEPLOY_ENV
+                    env.TF_VAR_FILE = "${env.DEPLOY_ENV}.tfvars"
+                    env.VERSION = getVersionFromBranch(env.GIT_BRANCH)
+                    env.DOCKER_IMAGE_TAG = "${env.APP_NAME}:${env.VERSION}-${env.BUILD_NUMBER}"
+                }
+            }
+        }
+
+
+
         stage('Checkout') {
             steps {
                 checkout scm
