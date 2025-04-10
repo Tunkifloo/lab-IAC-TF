@@ -119,9 +119,10 @@ pipeline {
                 withEnv(["JAVA_HOME=/opt/jdk/jdk-17.0.14+7", "PATH=/opt/jdk/jdk-17.0.14+7/bin:${env.PATH}"]) {
                 sh 'java -version'
 
-                sh '''
-                export JAVA_HOME=${JAVA_HOME}
-                export PATH=${JAVA_HOME}/bin:${M2_HOME}/bin:\$PATH
+                sh """
+                export JAVA_HOME=${env.JAVA_HOME}
+                export M2_HOME=${env.M2_HOME}
+                export PATH=\$JAVA_HOME/bin:\$M2_HOME/bin:\$PATH
 
                 echo "JAVA_HOME is: \$JAVA_HOME"
                 echo "Maven path: \$(which mvn)"
@@ -130,7 +131,7 @@ pipeline {
                 mvn -version
 
                 mvn clean package -DskipTests
-                '''
+                """
 
                 sh 'ls -la target/*.jar'
             }
