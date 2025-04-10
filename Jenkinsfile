@@ -120,8 +120,11 @@ pipeline {
                 sh 'java -version'
 
                 sh '''
-                echo "JAVA_HOME is: $JAVA_HOME"
-                echo "Maven path: $(which mvn)"
+                export JAVA_HOME=${JAVA_HOME}
+                export PATH=${JAVA_HOME}/bin:${M2_HOME}/bin:\$PATH
+
+                echo "JAVA_HOME is: \$JAVA_HOME"
+                echo "Maven path: \$(which mvn)"
 
                 java -version
                 mvn -version
