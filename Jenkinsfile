@@ -26,13 +26,14 @@ pipeline {
                     env.GIT_BRANCH = (env.BRANCH_NAME ?: env.GIT_BRANCH ?: 'develop').replace('origin/', '')
                     env.DEPLOY_ENV = (env.GIT_BRANCH == 'main') ? 'production' :
                                     (env.GIT_BRANCH == 'develop') ? 'staging' : 'testing'
-                    env.TF_VAR_FILE = [
-                        'production': 'prod.tfvars',
-                        'staging': 'staging.tfvars',
-                        'testing': 'dev.tfvars' // usa dev.tfvars como fallback
-                        ][env.DEPLOY_ENV]
+                    
+                    def tfvarsFile = "${env.DEPLOY_ENV}.tfvars"
+                    env.TF_VAR_FILE = fileExists(tfvarsFile) ? tfvarsFile : "dev.tfvars"
+
                     env.VERSION = getVersionFromBranch(env.GIT_BRANCH)
                     env.DOCKER_IMAGE_TAG = "${env.APP_NAME}:${env.VERSION}-${env.BUILD_NUMBER}"
+                
+                    echo "TF_VAR_FILE elegido: ${env.TF_VAR_FILE}"
                 }
             }
         }
