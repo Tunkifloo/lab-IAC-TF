@@ -7,15 +7,15 @@ pipeline {
     }
     
     environment {
-    JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'
-    PATH = "${JAVA_HOME}/bin:${env.PATH}"
+        JAVA_HOME = '/opt/jdk/jdk-17.0.14+7'
+        PATH = "${JAVA_HOME}/bin:${env.PATH}"
 
-    APP_NAME = 'mtd-api'
-    
-    CLOUDFLARE_CREDS = credentials('cloudflare-r2-credentials')
-    MAIL_CREDS = credentials('spring-mail-credentials')
-    
-    TF_IN_AUTOMATION = 'true'
+        APP_NAME = 'mtd-api'
+        
+        CLOUDFLARE_CREDS = credentials('cloudflare-r2-credentials')
+        MAIL_CREDS = credentials('spring-mail-credentials')
+        
+        TF_IN_AUTOMATION = 'true'
     }
     
     stages {
@@ -115,11 +115,11 @@ pipeline {
                 expression { !params.DEPLOY_INFRA || (params.DEPLOY_INFRA && params.TF_ACTION != 'destroy') }
                 }
             steps {
-                withEnv(["JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64", "PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:${env.PATH}"]) {
+                withEnv(["JAVA_HOME=/opt/jdk/jdk-17.0.14+7", "PATH=/opt/jdk/jdk-17.0.14+7/bin:${env.PATH}"]) {
                 sh 'java -version' // Verificación
 
                 sh '''
-                export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+                export JAVA_HOME=/opt/jdk/jdk-17.0.14+7
                 export PATH=$JAVA_HOME/bin:$PATH
 
                 echo "JAVA_HOME is: $JAVA_HOME"
@@ -132,7 +132,6 @@ pipeline {
 
                 mvn clean package -DskipTests
                 '''
-
 
                 sh 'ls -la target/*.jar'
             }
