@@ -138,6 +138,7 @@ pipeline {
                 archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
             }
         }
+    }
 
         
         stage('Build Docker Image') {
