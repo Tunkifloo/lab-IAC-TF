@@ -7,7 +7,7 @@ pipeline {
     }
     
     environment {
-        JAVA_HOME = '/opt/jdk/jdk-17.0.14+7'
+        JAVA_HOME = '/opt/java/openjdk'
         M2_HOME = '/opt/maven'
         PATH = "${JAVA_HOME}/bin:${M2_HOME}/bin:${env.PATH}"
 
@@ -117,10 +117,6 @@ pipeline {
                 }
             steps {
                 sh """
-                export JAVA_HOME=/opt/jdk/jdk-17.0.14+7
-                export M2_HOME=/opt/maven
-                export PATH=\$JAVA_HOME/bin:\$M2_HOME/bin:\$PATH
-
                 echo "JAVA_HOME is: \$JAVA_HOME"
                 echo "Maven path: \$(which mvn)"
 
