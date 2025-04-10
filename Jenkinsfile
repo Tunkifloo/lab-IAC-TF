@@ -132,10 +132,10 @@ pipeline {
 
                 sh 'ls -la target/*.jar'
             }
-        }
-        post {
-            success {
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+            post {
+                success {
+                    archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                }
             }
         }
 
