@@ -126,12 +126,16 @@ pipeline {
                 sh '''
                 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
                 export PATH=$JAVA_HOME/bin:$PATH
+                export MAVEN_OPTS="-Djava.home=$JAVA_HOME"
+
                 echo "JAVA_HOME is: $JAVA_HOME"
                 which java
                 java -version
+
                 echo "Maven path: $(which mvn)"
                 echo "Launching Maven with correct JAVA_HOME..."
-                JAVA_HOME=$JAVA_HOME mvn clean package -DskipTests
+
+                mvn clean package -DskipTests
                 '''
 
 
