@@ -27,9 +27,12 @@ pipeline {
                     env.DEPLOY_ENV = 'dev'
 
                     env.TF_VAR_FILE = "${env.DEPLOY_ENV}.tfvars"
+                    env.VERSION = getVersionFromBranch(env.GIT_BRANCH)
+                    env.DOCKER_IMAGE_TAG = "${env.APP_NAME}:${env.VERSION}-${env.BUILD_NUMBER}"
 
                     echo "TF_VAR_FILE elegido: ${env.TF_VAR_FILE}"
                     echo "Forzando terraform.workspace = ${env.DEPLOY_ENV}"
+                    echo "DOCKER_IMAGE_TAG generado: ${env.DOCKER_IMAGE_TAG}"
                 }
             }
         }
