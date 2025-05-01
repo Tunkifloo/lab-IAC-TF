@@ -1,11 +1,11 @@
 # Etapa de compilación
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
-COPY pom.xml .
+COPY ../pom.xml .
 # Descarga las dependencias
 RUN mvn dependency:go-offline -B
 # Copia el código fuente
-COPY src ./src
+COPY ../src ./src
 # Compila y empaqueta la aplicación
 RUN mvn package -DskipTests
 

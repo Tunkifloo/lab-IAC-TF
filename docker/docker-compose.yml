@@ -3,8 +3,8 @@ version: '3'
 services:
   jenkins:
     build:
-      context: .
-      dockerfile: Dockerfile.jenkins
+      context: ..
+      dockerfile: ../Dockerfile.jenkins
     container_name: jenkins
     privileged: true
     user: root
@@ -20,7 +20,7 @@ services:
       - mtd_network
   
   app_mtd:
-    build: .
+    build: ..
     ports:
       - "8081:8080"      # App disponible en http://localhost:8081
     environment:
