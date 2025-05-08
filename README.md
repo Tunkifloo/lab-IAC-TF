@@ -3,7 +3,7 @@
 ## Collaborators:
 - Cisneros Bartra, Adrian Nicolás
 - Marin Yupanqui, Bryan Arturo
-- Márquez Zurda, Hugo Elias
+- Márquez Diestra, Hugo Elias
 - Mostacero Cieza, Luis David
 
 ## Installation
@@ -77,8 +77,6 @@ The MTD API provides the following endpoints:
 The MTD API provides the following entities:
 
 - `Admin`
-- `Coordinator`
-- `Council`
 - `Maker`
 - `Role`
 - `User`
